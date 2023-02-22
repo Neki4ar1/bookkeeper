@@ -1,5 +1,6 @@
 import sqlite3 as sq
 from inspect import get_annotations
+from typing import Any
 
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
 
@@ -32,14 +33,13 @@ class SQliteRepository(AbstractRepository[T]):
             res = self.cls()    # Создаём объект класса, который будем возвращать
             if (values := cur.fetchone()) is None:
                 return None
-            else:
-                for attr, val in zip(self.fields, values):     # Заполняем его данными из полученной строки из БД
-                    setattr(res, attr, val)
-                res.pk = pk
+            for attr, val in zip(self.fields, values):     # Заполняем его данными из полученной строки из БД
+                setattr(res, attr, val)
+            res.pk = pk
         con.close()
         return res
 
-    def get_all(self):
+    def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
         ...
 
     def update(self):
