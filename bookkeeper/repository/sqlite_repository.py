@@ -45,5 +45,8 @@ class SQliteRepository(AbstractRepository[T]):
     def update(self):
         ...
 
-    def delete(self):
-        ...
+    def delete(self, pk: int) -> None:
+        with sq.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute(f"DELETE FROM {self.table_name} WHERE rowid = {pk}")
+        con.close()
