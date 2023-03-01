@@ -1,12 +1,25 @@
+"""
+Реализация хранения данных посредствам SQL
+"""
+
 import sqlite3 as sq
 from inspect import get_annotations
 from typing import Any
-from dataclasses import dataclass
 
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
 
 
-def make_t_obj(cls, fields: dict, values: str):
+def make_t_obj(cls: Any, fields: dict, values: str) -> Any:
+    """
+    Parameters
+    ----------
+    cls: class of returnable object
+    fields: dict of annotations
+    values: data from database
+
+    Returns
+    -------
+    """
     res = object.__new__(cls)  # Создаём объект класса, который будем возвращать
     if values is None:
         return None
@@ -18,25 +31,38 @@ def make_t_obj(cls, fields: dict, values: str):
 
 
 class SQliteRepository(AbstractRepository[T]):
-
+    """
+    Class of database with methods:
+    add
+    get
+    get_all
+    update
+    delete
+    """
     def __init__(self, db_file: str, cls: type) -> None:
         self.db_file = db_file
         self.table_name = cls.__name__.lower()
-        self.fields = get_annotations(cls, eval_str=True)   # Словарь аннотаций из класса, который передан
+        # Словарь аннотаций из класса, который передан
+        self.fields = get_annotations(cls, eval_str=True)
         self.fields.pop('pk')
         self.cls = cls
 
-        with sq.connect(self.db_file) as con:
+        with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
-            placeholders = ' '.join([f"{field} TEXT," for field in self.fields])
-            cur.execute(f"CREATE TABLE IF NOT EXISTS {self.table_name} ({placeholders} pk INTEGER PRIMARY KEY)")
+            # place holders
+            p_holders = ' '.join([f"{field} TEXT," for field in self.fields])
+            cur.execute(
+                f"CREATE TABLE IF NOT EXISTS {self.table_name} ({p_holders} pk INTEGER PRIMARY KEY)"
+            )
         con.close()
 
     def add(self, obj: T) -> int:
+        if obj.pk != 0:
+            raise ValueError('cannot add with pk != 0')
         names = ', '.join(self.fields.keys())
         placeholders = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
-        with sq.connect(self.db_file) as con:
+        with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
             cur.execute(f"INSERT INTO {self.table_name} ({names}) VALUES({placeholders})", values)
@@ -45,26 +71,21 @@ class SQliteRepository(AbstractRepository[T]):
         return obj.pk
 
     def get(self, pk: int) -> T | None:
-        with sq.connect(self.db_file) as con:
+        with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
             cur.execute(f"SELECT * FROM {self.table_name} WHERE rowid = {pk}")
-            res = self.cls()    # Создаём объект класса, который будем возвращать
-            if (values := cur.fetchone()) is None:
-                return None
-            for attr, val in zip(self.fields.keys(), values):     # Заполняем его данными из полученной строки из БД
-                setattr(res, attr, val)
-            res.pk = pk
+            res = make_t_obj(self.cls, self.fields, cur.fetchone())
         con.close()
         return res
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
-        with sq.connect(self.db_file) as con:
+        with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
             if where is None:
                 cur.execute(f"SELECT * FROM {self.table_name}")
             else:
-                placeholders = ', '.join(x + "=?" for x in where.keys())
-                values = [getattr(where, x) for x in where]
+                placeholders = " AND ".join([f"{f}=?" for f in where.keys()])
+                values = list(where.values())
                 cur.execute(f"SELECT * FROM {self.table_name} WHERE {placeholders}", values)
             values = cur.fetchall()
             res = [make_t_obj(self.cls, self.fields, val) for val in values]
@@ -74,20 +95,19 @@ class SQliteRepository(AbstractRepository[T]):
     def update(self, obj: T) -> None:
         if obj.pk == 0:
             raise ValueError('attempt to update object with unknown primary key')
-        placeholders = ', '.join(x+"=?" for x in obj.fields.keys())
+        names = ', '.join([f"{x} = ?" for x in self.fields.keys()])
         values = [getattr(obj, x) for x in self.fields]
-        with sq.connect(self.db_file) as con:
+
+        with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
-            cur.execute(f"UPDATE {self.table_name} SET {placeholders} WHERE rowid = {obj.pk})", values)
+            cur.execute(f"UPDATE {self.table_name} SET {names} WHERE rowid = {obj.pk}", values)
             obj.pk = cur.lastrowid
         con.close()
 
     def delete(self, pk: int) -> None:
-        with sq.connect(self.db_file) as con:
+        if self.get(pk) is None:
+            raise KeyError('this pk doesnt exist')
+        with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
             cur.execute(f"DELETE FROM {self.table_name} WHERE rowid = {pk}")
         con.close()
-#
-# r = SQliteRepository('test.sqlite', Test)
-# o = Test('John')
-# r.add(o)
