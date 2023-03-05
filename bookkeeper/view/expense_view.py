@@ -3,10 +3,6 @@
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
 from PySide6 import QtCore, QtWidgets
 
-from bookkeeper.models.category import Category
-from bookkeeper.repository.sqlite_repository import SQliteRepository
-
-cat_repo = SQliteRepository[Category]('test.db', Category)
 
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -35,10 +31,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        data = [[cat.name, cat.parent] for cat in cat_repo.get_all()]
 
-        categories = [cat.name for cat in cat_repo.get_all()]
-
+        # categories = [cat.name for cat in cat_repo.get_all()]
 
         self.setWindowTitle("Программа для ведения бюджета")
         self.setFixedSize(500, 600)
@@ -51,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(self.expenses_grid)
 
         self.layout.addWidget(QLabel('Бюджет'))
-        self.layout.addWidget(QLabel('<TODO: таблица бюджета>\n\n\n\n\n\n\n\n'))
+        self.layout.addWidget(QLabel('TODO: таблица бюджета>\n\n\n\n\n\n\n\n'))
 
         bottom_controls = QGridLayout()
 
@@ -73,17 +67,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         expense_add_button = QPushButton('Добавить')
         bottom_controls.addWidget(expense_add_button, 2, 1)
+        if expense_add_button.pressed():
+            print(amount_line_edit.text())
 
         bottom_widget = QWidget()
         bottom_widget.setLayout(bottom_controls)
 
         self.layout.addWidget(bottom_widget)
 
-
-        self.item_model = TableModel(data)
-        self.expenses_grid.setModel(self.item_model)
-
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
 
         self.setCentralWidget(self.widget)
+
+    def set_expense_table(self, data):
+        self.item_model = TableModel(data)
+        self.expenses_grid.setModel(self.item_model)
