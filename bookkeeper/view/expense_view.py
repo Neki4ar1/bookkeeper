@@ -35,6 +35,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        data = [[cat.name, cat.parent] for cat in cat_repo.get_all()]
+
+        categories = [cat.name for cat in cat_repo.get_all()]
+
+
         self.setWindowTitle("Программа для ведения бюджета")
         self.setFixedSize(500, 600)
 
@@ -59,7 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         bottom_controls.addWidget(QLabel('Категория'), 1, 0)
 
         category_dropdown = QComboBox()
-        category_dropdown.addItems(['Продукты', 'Тест', 'Тест'])
+        category_dropdown.addItems(categories)
 
         bottom_controls.addWidget(category_dropdown, 1, 1)
 
@@ -74,7 +79,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.layout.addWidget(bottom_widget)
 
-        data = [[cat.name, cat.parent] for cat in cat_repo.get_all()]
 
         self.item_model = TableModel(data)
         self.expenses_grid.setModel(self.item_model)
