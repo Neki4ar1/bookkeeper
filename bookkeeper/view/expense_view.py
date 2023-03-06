@@ -1,8 +1,6 @@
 # -*- coding: utf8 -*-
-
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
 from PySide6 import QtCore, QtWidgets
-
 
 
 class TableModel(QtCore.QAbstractTableModel):

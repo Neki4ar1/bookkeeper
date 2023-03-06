@@ -1,5 +1,6 @@
 from bookkeeper.models.expense import Expense
 
+
 class ExpensePresenter:
 
     def __init__(self, model, view, cat_repo, exp_repo):
