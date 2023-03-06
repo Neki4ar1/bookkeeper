@@ -10,7 +10,7 @@ class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
-        self.columns = ['Дата', 'Amount', 'Category', 'Comment']
+        self.columns = ['Дата', 'Сумма', 'Категория', 'Комментарий']
 
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole:
