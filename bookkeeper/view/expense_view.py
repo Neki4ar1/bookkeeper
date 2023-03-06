@@ -7,6 +7,7 @@ class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
+        self.columns = ['Дата', 'Amount', 'Category', 'Comment']
 
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole:
@@ -24,13 +25,19 @@ class TableModel(QtCore.QAbstractTableModel):
         # the length (only works if all rows are an equal length)
         return len(self._data[0])
 
+    def headerData(self, section, orientation, role):
+        # section is the index of the column/row.
+        if role == QtCore.Qt.DisplayRole:
+            if orientation == QtCore.Qt.Horizontal:
+                return str(self.columns[section])
+
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.item_model = None
 
-        # categories = [cat.name for cat in cat_repo.get_all()]
 
         self.setWindowTitle("Программа для ведения бюджета")
         self.setFixedSize(500, 600)
@@ -56,7 +63,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bottom_controls.addWidget(QLabel('Категория'), 1, 0)
 
         self.category_dropdown = QComboBox()
-        # category_dropdown.addItems(categories)
 
         self.bottom_controls.addWidget(self.category_dropdown, 1, 1)
 
@@ -65,8 +71,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.expense_add_button = QPushButton('Добавить')
         self.bottom_controls.addWidget(self.expense_add_button, 2, 1)
-        # if expense_add_button.pressed():
-        #     print(amount_line_edit.text())
 
         self.bottom_widget = QWidget()
         self.bottom_widget.setLayout(self.bottom_controls)
@@ -83,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.expenses_grid.setModel(self.item_model)
 
     def set_category_dropdown(self, data):
-        self.category_dropdown.addItems([tup.name for tup in data])
+        self.category_dropdown.addItems([tup[0] for tup in data])
 
     def on_expense_add_button_clicked(self, slot):
         self.expense_add_button.clicked.connect(slot)
@@ -92,4 +96,4 @@ class MainWindow(QtWidgets.QMainWindow):
         return float(self.amount_line_edit.text())  # TODO: обработка исключений
 
     def get_selected_cat(self) -> int:
-        return self.category_dropdown.itemData(self.category_dropdown.currentIndex())
+        return self.category_dropdown.currentText()
