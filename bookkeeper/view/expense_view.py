@@ -4,6 +4,9 @@ from PySide6 import QtCore, QtWidgets
 
 
 class TableModel(QtCore.QAbstractTableModel):
+    """
+    https://www.pythonguis.com/tutorials/pyside6-qtableview-modelviews-numpy-pandas/
+    """
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
@@ -32,12 +35,10 @@ class TableModel(QtCore.QAbstractTableModel):
                 return str(self.columns[section])
 
 
-
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.item_model = None
-
 
         self.setWindowTitle("Программа для ведения бюджета")
         self.setFixedSize(500, 600)
@@ -69,8 +70,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.category_edit_button = QPushButton('Редактировать')
         self.bottom_controls.addWidget(self.category_edit_button, 1, 2)
 
+        self.bottom_controls.addWidget(QLabel('Комментарий'), 2, 0)
+
+        self.commentary_line_edit = QLineEdit()
+        self.bottom_controls.addWidget(self.commentary_line_edit, 2, 1)
+
         self.expense_add_button = QPushButton('Добавить')
-        self.bottom_controls.addWidget(self.expense_add_button, 2, 1)
+        self.bottom_controls.addWidget(self.expense_add_button, 3, 1)
 
         self.bottom_widget = QWidget()
         self.bottom_widget.setLayout(self.bottom_controls)
@@ -97,3 +103,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_selected_cat(self) -> int:
         return self.category_dropdown.currentText()
+
+    def get_am_cat_com(self) -> list[float, str, str]:
+        return [float(self.amount_line_edit.text()), self.category_dropdown.currentText(), self.commentary_line_edit.text()]

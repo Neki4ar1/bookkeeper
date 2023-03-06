@@ -22,8 +22,9 @@ class ExpensePresenter:
         self.view.set_category_dropdown(self.cat_data)
 
     def handle_expense_add_button_clicked(self):
-        category = self.view.get_selected_cat()
-        amount = self.view.get_amount()
-        exp = Expense(int(amount), category)
+        amount, category, comment = self.view.get_am_cat_com()
+        # category = self.view.get_selected_cat()
+        # amount = self.view.get_amount()
+        exp = Expense(amount=float(amount), category=category, comment=comment)
         self.exp_repo.add(exp)
         self.update_expense_data()
