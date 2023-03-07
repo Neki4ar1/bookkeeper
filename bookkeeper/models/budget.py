@@ -1,5 +1,6 @@
+# -*- coding: utf8 -*-
 """
-Îïèñàí êëàññ, ïğåäñòàâëÿşùèé áşäæåò íà äåíü/íåäåëş/ìåñÿö
+ĞĞ¿Ğ¸ÑĞ°Ğ½ ĞºĞ»Ğ°ÑÑ, Ğ¿Ñ€ĞµĞ´ÑÑ‚Ğ°Ğ²Ğ»ÑÑÑ‰Ğ¸Ğ¹ Ğ±ÑĞ´Ğ¶ĞµÑ‚ Ğ½Ğ° Ğ´ĞµĞ½ÑŒ/Ğ½ĞµĞ´ĞµĞ»Ñ/Ğ¼ĞµÑÑÑ†
 """
 
 from dataclasses import dataclass, field
@@ -9,10 +10,23 @@ from datetime import datetime
 @dataclass(slots=True)
 class Budget:
     """
-    Áşäæåò
-
+    Ğ‘ÑĞ´Ğ¶ĞµÑ‚
+    limit - limit on period
+    spent - how much money have been spent in period
+    period - day, week, or month
+    pk - primary key
     """
-    r_day: float = 0
-    r_week: float = 0*7
-    r_month: float = 0*30
+    limit: float
+    spent: float
+    period: str
     pk: int = 0
+
+    def __init__(self, limit, spent, period, pk):
+        self.limit = limit
+        self.spent = spent
+        self.period = period
+        self.pk = pk
+
+    def set_limit_bud(self, limit: float) -> None:
+        self.limit = limit
+
