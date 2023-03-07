@@ -1,4 +1,7 @@
 # -*- coding: utf8 -*-
+"""
+Главный файл, отвечающий за внешний вид
+"""
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
 from PySide6 import QtCore, QtWidgets
 
@@ -101,8 +104,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def get_amount(self) -> float:
         return float(self.amount_line_edit.text())  # TODO: обработка исключений
 
-    def get_selected_cat(self) -> int:
+    def get_selected_cat(self) -> str:
         return self.category_dropdown.currentText()
 
+    def get_comment(self) -> str:
+        return self.commentary_line_edit.text()
+
     def get_am_cat_com(self) -> list[float, str, str]:
-        return [float(self.amount_line_edit.text()), self.category_dropdown.currentText(), self.commentary_line_edit.text()]
+        return [self.get_amount(), self.get_selected_cat(), self.get_comment()]
