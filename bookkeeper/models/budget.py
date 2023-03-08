@@ -3,8 +3,7 @@
 Описан класс, представляющий бюджет на день/неделю/месяц
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 
 
 @dataclass(slots=True)
@@ -17,14 +16,12 @@ class Budget:
     """
     limit_on: float
     spent: float
-    date: str
     pk: int = 0
     #
     # def __init__(self, limit, spent, pk):
     #     self.limit = limit
     #     self.spent = spent
     #     self.pk = pk
-
-    def set_limit_bud(self, limit: float) -> None:
-        self.limit_on = limit
-
+    #
+    # def set_limit_bud(self, limit: float) -> None:
+    #     self.limit_on = limit
