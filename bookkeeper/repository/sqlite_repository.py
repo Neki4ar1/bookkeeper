@@ -9,7 +9,7 @@ from typing import Any
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
 
 
-def make_t_obj(cls: Any, fields: dict, values: str) -> Any:
+def make_t_obj(cls: Any, fields: dict[Any, Any], values: str) -> Any:
     """
     Parameters
     ----------
@@ -23,7 +23,8 @@ def make_t_obj(cls: Any, fields: dict, values: str) -> Any:
     res = object.__new__(cls)  # Создаём объект класса, который будем возвращать
     if values is None:
         return None
-    for attr, val in zip(fields.keys(), values):  # Заполняем его данными из полученной строки из БД
+    for attr, val in zip(fields.keys(), values):
+        # Заполняем его данными из полученной строки из БД
         # print(attr, val)
         setattr(res, attr, val)
     setattr(res, 'pk', values[-1])
@@ -32,12 +33,19 @@ def make_t_obj(cls: Any, fields: dict, values: str) -> Any:
 
 class SQliteRepository(AbstractRepository[T]):
     """
-    Class of database with methods:
-    add
-    get
-    get_all
-    update
-    delete
+    Class of database with
+    Attributes:
+        db_file
+        table_name
+        fields
+        cls
+    Methods:
+        add
+        get
+        get_all
+        get_like
+        update
+        delete
     """
     def __init__(self, db_file: str, cls: type) -> None:
         self.db_file = db_file
@@ -52,7 +60,9 @@ class SQliteRepository(AbstractRepository[T]):
             # place holders
             p_holders = ' '.join([f"{field} TEXT," for field in self.fields])
             cur.execute(
-                f"CREATE TABLE IF NOT EXISTS {self.table_name} ({p_holders} pk INTEGER PRIMARY KEY)"
+                f"CREATE TABLE IF NOT EXISTS "
+                f"{self.table_name} ({p_holders} "
+                f"pk INTEGER PRIMARY KEY)"
             )
         con.close()
 
@@ -65,12 +75,14 @@ class SQliteRepository(AbstractRepository[T]):
         with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
-            cur.execute(f"INSERT INTO {self.table_name} ({names}) VALUES({placeholders})", values)
+            cur.execute(f"INSERT INTO "
+                        f"{self.table_name} ({names}) "
+                        f"VALUES({placeholders})", values)
             obj.pk = cur.lastrowid
         con.close()
         return obj.pk
 
-    def get(self, pk: int) -> T | None:
+    def get(self, pk: int) -> T | None | Any:
         with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
             cur.execute(f"SELECT * FROM {self.table_name} WHERE rowid = {pk}")
@@ -84,24 +96,27 @@ class SQliteRepository(AbstractRepository[T]):
             if where is None:
                 cur.execute(f"SELECT * FROM {self.table_name}")
             else:
-                placeholders = " AND ".join([f"{f}=?" for f in where.keys()])
+                placeholders = " AND ".join([f"{f}=?"
+                                             for f in where.keys()])
                 values = list(where.values())
-                cur.execute(f"SELECT * FROM {self.table_name} WHERE {placeholders}", values)
+                cur.execute(f"SELECT * FROM "
+                            f"{self.table_name} "
+                            f"WHERE {placeholders}", values)
             values = cur.fetchall()
             res = [make_t_obj(self.cls, self.fields, val) for val in values]
         con.close()
         return res
 
     def get_like(self, where: dict[str, Any] | None = None) -> list[T]:
+        """return list of values that looks like condition in where"""
+        if where is None:
+            raise ValueError('Where must be not None')
         # function added by power of N_eki 4 ar
         with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
-            if where is None:
-                cur.execute(f"SELECT * FROM {self.table_name}")
-            else:
-                placeholders = " AND ".join([f"{f} LIKE ?" for f in where.keys()])
-                values = list(where.values())
-                cur.execute(f"SELECT * FROM {self.table_name} WHERE {placeholders}", values)
+            placeholders = " AND ".join([f"{f} LIKE ?" for f in where.keys()])
+            values = list(where.values())
+            cur.execute(f"SELECT * FROM {self.table_name} WHERE {placeholders}", values)
             values = cur.fetchall()
             res = [make_t_obj(self.cls, self.fields, val) for val in values]
         con.close()
@@ -115,7 +130,10 @@ class SQliteRepository(AbstractRepository[T]):
 
         with sq.connect(self.db_file, timeout=5) as con:
             cur = con.cursor()
-            cur.execute(f"UPDATE {self.table_name} SET {names} WHERE rowid = {obj.pk}", values)
+            cur.execute(f"UPDATE "
+                        f"{self.table_name} "
+                        f"SET {names} "
+                        f"WHERE rowid = {obj.pk}", values)
             obj.pk = cur.lastrowid
         con.close()
 
