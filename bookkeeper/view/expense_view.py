@@ -2,49 +2,74 @@
 """
 Главный файл, отвечающий за внешний вид
 """
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
+from typing import Any
+
+from PySide6.QtWidgets import QVBoxLayout, QLabel, \
+    QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
 from PySide6 import QtCore, QtWidgets
+from bookkeeper.repository.abstract_repository import T
 
 
 class TableModel(QtCore.QAbstractTableModel):
     """
-    https://www.pythonguis.com/tutorials/pyside6-qtableview-modelviews-numpy-pandas/
+    class that making tables to view
+    data
+    rowCount
+    columnCount
+    headerData
     """
-    def __init__(self, data):
+    def __init__(self, data: list[Any], columns: list[str]):
         super(TableModel, self).__init__()
         self._data = data
-        self.columns = ['Дата', 'Сумма', 'Категория', 'Комментарий']
+        self.columns = columns
 
-    def data(self, index, role):
+    def data(self, index: Any, role: Any) -> Any | None:
+        """
+        See below for the nested-list data structure.
+        .row() indexes into the outer list,
+        .column() indexes into the sub-list
+        """
         if role == QtCore.Qt.DisplayRole:
-            # See below for the nested-list data structure.
-            # .row() indexes into the outer list,
-            # .column() indexes into the sub-list
             return self._data[index.row()][index.column()]
+        return None
 
-    def rowCount(self, index):
-        # The length of the outer list.
+    def rowCount(self, index: Any) -> Any:
+        """The length of the outer list."""
         return len(self._data)
 
-    def columnCount(self, index):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
+    def columnCount(self, index: Any) -> Any:
+        """
+        The following takes the first sub-list, and returns
+        the length (only works if all rows are an equal length)
+        """
         return len(self._data[0])
 
-    def headerData(self, section, orientation, role):
-        # section is the index of the column/row.
+    def headerData(self, section: Any, orientation: Any, role: Any) -> str | None:
+        """section is the index of the column/row."""
         if role == QtCore.Qt.DisplayRole:
             if orientation == QtCore.Qt.Horizontal:
                 return str(self.columns[section])
+        return None
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    """
+    MainWindow class of editing Main Window
+    Methods:
+        set_expense_table
+        set_budget_tabel
+        set_category_dropdown
+        on_expense_add_button_clicked
+        get_amount
+        get_selected_cat
+        get_comment
+        get_am_cat_com
+    """
+    def __init__(self) -> None:
         super().__init__()
-        self.item_model = None
 
         self.setWindowTitle("Программа для ведения бюджета")
-        self.setFixedSize(500, 600)
+        self.setFixedSize(600, 700)
 
         self.layout = QVBoxLayout()
 
@@ -54,16 +79,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(self.expenses_grid)
 
         self.layout.addWidget(QLabel('Бюджет'))
-        self.layout.addWidget(QLabel('TODO: таблица бюджета>\n\n\n\n\n\n\n\n'))
+        self.budget_grid = QtWidgets.QTableView()
+        self.layout.addWidget(self.budget_grid)
 
         self.bottom_controls = QGridLayout()
-
         self.bottom_controls.addWidget(QLabel('Сумма'), 0, 0)
 
         self.amount_line_edit = QLineEdit()
 
-        self.bottom_controls.addWidget(self.amount_line_edit, 0, 1)# TODO: добавить валидатор
-
+        self.bottom_controls.addWidget(self.amount_line_edit, 0, 1)
         self.bottom_controls.addWidget(QLabel('Категория'), 1, 0)
 
         self.category_dropdown = QComboBox()
@@ -91,24 +115,36 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.widget)
 
-    def set_expense_table(self, data):
-        self.item_model = TableModel(data)
-        self.expenses_grid.setModel(self.item_model)
+    def set_expense_table(self, data: list[T]) -> None:
+        """making expense table on main window"""
+        cat_model = TableModel(data[::-1], ['Дата', 'Сумма', 'Категория', 'Комментарий'])
+        self.expenses_grid.setModel(cat_model)
 
-    def set_category_dropdown(self, data):
+    def set_budget_table(self, data: list[T]) -> None:
+        """making budget table on main window"""
+        bud_model = TableModel(data, ['', 'Бюджет', 'Потрачено'])
+        self.budget_grid.setModel(bud_model)
+
+    def set_category_dropdown(self, data: list[str]) -> None:
+        """make dropdown of categories on main window"""
         self.category_dropdown.addItems([tup[0] for tup in data])
 
-    def on_expense_add_button_clicked(self, slot):
+    def on_expense_add_button_clicked(self, slot: Any) -> None:
+        """connect to funtion slot after clicking button"""
         self.expense_add_button.clicked.connect(slot)
 
     def get_amount(self) -> float:
+        """return amount"""
         return float(self.amount_line_edit.text())  # TODO: обработка исключений
 
-    def get_selected_cat(self) -> str:
+    def get_selected_cat(self) -> Any:
+        """return category"""
         return self.category_dropdown.currentText()
 
-    def get_comment(self) -> str:
+    def get_comment(self) -> Any:
+        """return comment"""
         return self.commentary_line_edit.text()
 
-    def get_am_cat_com(self) -> list[float, str, str]:
+    def get_am_cat_com(self) -> list[Any]:
+        """return list[amount, category, comment]"""
         return [self.get_amount(), self.get_selected_cat(), self.get_comment()]
