@@ -20,10 +20,9 @@ class Expense:
     amount: float
     category: int
     expense_date: datetime = field(default_factory=datetime.now)
-    added_date: datetime = f'{datetime.now():%d-%m-%Y %H:%M}'
+    added_date: str = f'{datetime.now():%d-%m-%Y %H:%M}'
     # expense_date: str = f'{datetime.now():%d-%m-%Y %H:%M}'
     # fixed by: str = f'{nek_i_4_ar}'
     # added_date: str = f'{datetime.now():%d-%m-%Y %H:%M}'
     comment: str = ''
     pk: int = 0
-
