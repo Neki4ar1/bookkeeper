@@ -85,3 +85,27 @@ def test_get_all_with_condition():
 
     for o in objects:
         repo.delete(o.pk)
+
+
+def test_get_like_without_where():
+    with pytest.raises(ValueError):
+        repo.get_like()
+
+
+def test_get_like():
+    objects = []
+    for i in range(5):
+        o = Category('', 2)
+        o.name = str(i)
+        o.parent = 897
+        repo.add(o)
+        objects.append(o)
+    obj_pk = [obj.pk for obj in repo.get_like({'name': '0'})]
+    assert obj_pk[0] == objects[0].pk
+    obj_pk = [obj.pk for obj in repo.get_like({'parent': '89%'})]
+    assert obj_pk == [o.pk for o in objects]
+
+    for o in objects:
+        repo.delete(o.pk)
+
+
