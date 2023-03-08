@@ -92,6 +92,21 @@ class SQliteRepository(AbstractRepository[T]):
         con.close()
         return res
 
+    def get_like(self, where: dict[str, Any] | None = None) -> list[T]:
+        # function added by power of N_eki 4 ar
+        with sq.connect(self.db_file, timeout=5) as con:
+            cur = con.cursor()
+            if where is None:
+                cur.execute(f"SELECT * FROM {self.table_name}")
+            else:
+                placeholders = " AND ".join([f"{f} LIKE ?" for f in where.keys()])
+                values = list(where.values())
+                cur.execute(f"SELECT * FROM {self.table_name} WHERE {placeholders}", values)
+            values = cur.fetchall()
+            res = [make_t_obj(self.cls, self.fields, val) for val in values]
+        con.close()
+        return res
+
     def update(self, obj: T) -> None:
         if obj.pk == 0:
             raise ValueError('attempt to update object with unknown primary key')
