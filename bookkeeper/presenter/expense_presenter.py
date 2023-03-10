@@ -6,6 +6,7 @@ import datetime
 from typing import Any
 
 from bookkeeper.models.expense import Expense
+from bookkeeper.models.category import Category
 
 
 class ExpensePresenter:
@@ -21,14 +22,26 @@ class ExpensePresenter:
 
     def __init__(self, model: Any, view: Any, repo: list[Any]):
         self.model = model
-        self.view = view
+        self.view = view  # [mainWindow, RedactorWindow]
         self.repos = repo
         # self.cat_repo = repo[0]
         # self.exp_repo = repo[1]
         # self.bud_repo = repo[2]
         # self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
-        self.view.on_redactor_add_button_clicked(self.show_redactor)
+        self.view.on_redactor_add_button_clicked(self.show_redactor_clicked)
+
+        red_w = self.view.get_redactor()
+        red_w.on_add_category_clicked(self.add_category_button_clicked)
+
+    def show(self) -> None:
+        """showing all on main view"""
+        self.view.show()
+        self.update_expense_data()
+        self.update_budget_data()
+        # cat_data = self.update_category_data()
+        cat_data = [[cat.name, cat.parent, cat.pk] for cat in self.repos[0].get_all()]
+        self.view.set_category_dropdown(cat_data)
 
     def update_expense_data(self) -> None:
         """update information"""
@@ -45,6 +58,11 @@ class ExpensePresenter:
         self.update_budget_data()
         self.view.set_expense_table(exp_data)
 
+    def update_category_data(self):
+        cat_data = [[cat.name, cat.parent, cat.pk] for cat in self.repos[0].get_all()]
+        # return cat_data
+        self.view.set_category_dropdown(cat_data)
+
     def update_budget_data(self) -> None:
         """updates budget"""
         bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
@@ -56,7 +74,6 @@ class ExpensePresenter:
         week_data: list[Any] = []
         for date in week_dates:
             week_data = week_data+self.repos[1].get_like({"added_date": f"{date[:10]}%"})
-        # print(*week_data, sep='\n')
 
         today_data = [float(day.amount)
                       for day in self.repos[1].get_like({"added_date": f"{today[:10]}%"})]
@@ -65,26 +82,11 @@ class ExpensePresenter:
                       for m in self.repos[1].get_like({"added_date": f"%{today[2:10]}%"})]
 
         data = [
-            ['День', f'{bud_data[0][0]}', sum(today_data)],
+            ['День',   f'{bud_data[0][0]}', sum(today_data)],
             ['Неделя', f'{bud_data[1][0]}', sum(week_data)],
-            ['Месяц', f'{bud_data[2][0]}', sum(month_data)],
+            ['Месяц',  f'{bud_data[2][0]}', sum(month_data)],
         ]
         self.view.set_budget_table(data)
-
-    def show_redactor(self, checked):
-        red_w = self.view.get_redactor()
-        if red_w.isVisible():
-            red_w.hide()
-        else:
-            red_w.show()
-
-    def show(self) -> None:
-        """showing all on main view"""
-        self.view.show()
-        self.update_expense_data()
-        self.update_budget_data()
-        cat_data = [[cat.name, cat.parent, cat.pk] for cat in self.repos[0].get_all()]
-        self.view.set_category_dropdown(cat_data)
 
     def handle_expense_add_button_clicked(self) -> None:
         """add expense and update expense on expense_table"""
@@ -92,3 +94,16 @@ class ExpensePresenter:
         exp = Expense(amount=float(amount), category=category, comment=comment)
         self.repos[1].add(exp)
         self.update_expense_data()
+
+    def show_redactor_clicked(self, checked) -> None:
+        red_w = self.view.get_redactor()
+        if red_w.isVisible():
+            red_w.hide()
+        else:
+            red_w.show()
+
+    def add_category_button_clicked(self, checked) -> None:
+        redactor_view = self.view.get_redactor()
+        new_cat = Category(redactor_view.get_add_category())
+        self.repos[0].add(new_cat)
+        self.update_category_data()

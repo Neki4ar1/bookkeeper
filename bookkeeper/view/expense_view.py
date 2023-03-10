@@ -140,7 +140,8 @@ class MainWindow(QMainWindow):
 
     def set_category_dropdown(self, data: list[str]) -> None:
         """make dropdown of categories on main window"""
-        self.category_dropdown.addItems( [tup[0] for tup in data])
+        self.category_dropdown.clear()
+        self.category_dropdown.addItems([tup[0] for tup in data])
 
     def on_expense_add_button_clicked(self, slot: Any) -> None:
         """connect to funtion slot after clicking button"""

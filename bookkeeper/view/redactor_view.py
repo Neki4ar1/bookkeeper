@@ -1,5 +1,9 @@
-import sys
-from random import randint
+# -*- coding: utf8 -*-
+"""
+module of redactor window
+"""
+
+from typing import Any
 
 from PySide6.QtWidgets import (
     QApplication,
@@ -28,12 +32,12 @@ class RedactorWindow(QWidget):
         bottom_controls = QGridLayout()
 
         bottom_controls.addWidget(QLabel("add category"), 0, 0)
-        category_line = QLineEdit()
-        bottom_controls.addWidget(category_line, 0, 1)
+        self.category_line = QLineEdit()
+        bottom_controls.addWidget(self.category_line, 0, 1)
 
-        edit_button = QPushButton('save')
+        self.save_button = QPushButton('save')
         # edit_button.clicked.connect(self.show_redactor())
-        bottom_controls.addWidget(edit_button, 0, 2)
+        bottom_controls.addWidget(self.save_button, 0, 2)
 
         bottom_controls.addWidget(QLabel("delete category"), 1, 0)
         category_delete = QLineEdit()
@@ -61,3 +65,22 @@ class RedactorWindow(QWidget):
 
         # self.widget = QWidget()
         self.setLayout(layout)
+
+    def on_add_category_clicked(self, slot):
+        self.save_button.clicked.connect(slot)
+
+    def get_add_category(self) -> str:
+        """return amount"""
+        return self.category_line.text()
+
+    # def get_selected_cat(self) -> Any:
+    #     """return category"""
+    #     return self.category_dropdown.currentText()
+    #
+    # def get_comment(self) -> Any:
+    #     """return comment"""
+    #     return self.commentary_line_edit.text()
+    #
+    # def get_am_cat_com(self) -> list[Any]:
+    #     """return list[amount, category, comment]"""
+    #     return [self.get_amount(), self.get_selected_cat(), self.get_comment()]
