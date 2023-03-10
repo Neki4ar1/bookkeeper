@@ -27,6 +27,7 @@ class ExpensePresenter:
         self.bud_repo = repo[2]
         self.bud_data = [[bud.limit_on, bud.spent] for bud in self.bud_repo.get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
+        self.view.on_redactor_add_button_clicked(self.show_redactor)
 
     def update_expense_data(self) -> None:
         """update information"""
@@ -67,6 +68,13 @@ class ExpensePresenter:
             ['Месяц', f'{self.bud_data[2][0]}', sum(month_data)],
         ]
         self.view.set_budget_table(data)
+
+    def show_redactor(self, checked):
+        red_w = self.view.get_redactor()
+        if red_w.isVisible():
+            red_w.hide()
+        else:
+            red_w.show()
 
     def show(self) -> None:
         """showing all on main view"""

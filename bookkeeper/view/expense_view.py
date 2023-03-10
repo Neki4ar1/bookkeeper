@@ -4,10 +4,19 @@
 """
 from typing import Any
 
-from PySide6.QtWidgets import QVBoxLayout, QLabel, \
-    QWidget, QGridLayout, QComboBox, QLineEdit, QPushButton
+from PySide6.QtWidgets import (
+    QVBoxLayout,
+    QLabel,
+    QWidget,
+    QGridLayout,
+    QComboBox,
+    QLineEdit,
+    QPushButton,
+    QMainWindow
+)
 from PySide6 import QtCore, QtWidgets
 from bookkeeper.repository.abstract_repository import T
+from bookkeeper.view.redactor_view import RedactorWindow
 
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -52,7 +61,7 @@ class TableModel(QtCore.QAbstractTableModel):
         return None
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
     """
     MainWindow class of editing Main Window
     Methods:
@@ -67,9 +76,10 @@ class MainWindow(QtWidgets.QMainWindow):
     """
     def __init__(self) -> None:
         super().__init__()
+        self.redactor_w = RedactorWindow()
 
         self.setWindowTitle("Программа для ведения бюджета")
-        self.setFixedSize(600, 700)
+        self.setFixedSize(500, 700)
 
         self.layout = QVBoxLayout()
 
@@ -94,8 +104,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.bottom_controls.addWidget(self.category_dropdown, 1, 1)
 
-        self.category_edit_button = QPushButton('Редактировать')
-        self.bottom_controls.addWidget(self.category_edit_button, 1, 2)
+        self.edit_button = QPushButton('Редактировать')
+        self.bottom_controls.addWidget(self.edit_button, 1, 2)
 
         self.bottom_controls.addWidget(QLabel('Комментарий'), 2, 0)
 
@@ -119,19 +129,28 @@ class MainWindow(QtWidgets.QMainWindow):
         """making expense table on main window"""
         cat_model = TableModel(data[::-1], ['Дата', 'Сумма', 'Категория', 'Комментарий'])
         self.expenses_grid.setModel(cat_model)
+        self.expenses_grid.horizontalHeader().setStretchLastSection(True)
 
     def set_budget_table(self, data: list[T]) -> None:
         """making budget table on main window"""
         bud_model = TableModel(data, ['', 'Бюджет', 'Потрачено'])
         self.budget_grid.setModel(bud_model)
+        self.budget_grid.horizontalHeader().setStretchLastSection(True)
+        self.budget_grid.verticalHeader().setStretchLastSection(True)
 
     def set_category_dropdown(self, data: list[str]) -> None:
         """make dropdown of categories on main window"""
-        self.category_dropdown.addItems([tup[0] for tup in data])
+        self.category_dropdown.addItems( [tup[0] for tup in data])
 
     def on_expense_add_button_clicked(self, slot: Any) -> None:
         """connect to funtion slot after clicking button"""
         self.expense_add_button.clicked.connect(slot)
+
+    def on_redactor_add_button_clicked(self, slot: Any) -> None:
+        self.edit_button.clicked.connect(slot)
+
+    def get_redactor(self):
+        return self.redactor_w
 
     def get_amount(self) -> float:
         """return amount"""
