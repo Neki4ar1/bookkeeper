@@ -22,10 +22,11 @@ class ExpensePresenter:
     def __init__(self, model: Any, view: Any, repo: list[Any]):
         self.model = model
         self.view = view
-        self.cat_repo = repo[0]
-        self.exp_repo = repo[1]
-        self.bud_repo = repo[2]
-        self.bud_data = [[bud.limit_on, bud.spent] for bud in self.bud_repo.get_all()]
+        self.repos = repo
+        # self.cat_repo = repo[0]
+        # self.exp_repo = repo[1]
+        # self.bud_repo = repo[2]
+        self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
         self.view.on_redactor_add_button_clicked(self.show_redactor)
 
@@ -35,7 +36,7 @@ class ExpensePresenter:
                      tup.amount,
                      tup.category,
                      tup.comment]
-                    for tup in self.exp_repo.get_all()]
+                    for tup in self.repos[1].get_all()]
         # d_m_y = int(str(self.exp_data[-1][0])[:10])
         # for date, amount, cat, com in self.exp_data:
         #     day_sum = day_sum + (amount if d_m_y == int(str(date)[:10]) else 0)
@@ -53,14 +54,14 @@ class ExpensePresenter:
                       for i in range(week_day)]
         week_data: list[Any] = []
         for date in week_dates:
-            week_data = week_data+self.exp_repo.get_like({"added_date": f"{date[:10]}%"})
+            week_data = week_data+self.repos[1].get_like({"added_date": f"{date[:10]}%"})
         # print(*week_data, sep='\n')
 
         today_data = [float(day.amount)
-                      for day in self.exp_repo.get_like({"added_date": f"{today[:10]}%"})]
+                      for day in self.repos[1].get_like({"added_date": f"{today[:10]}%"})]
         week_data = [float(day.amount) for day in week_data]
         month_data = [float(m.amount)
-                      for m in self.exp_repo.get_like({"added_date": f"%{today[2:10]}%"})]
+                      for m in self.repos[1].get_like({"added_date": f"%{today[2:10]}%"})]
 
         data = [
             ['День', f'{self.bud_data[0][0]}', sum(today_data)],
@@ -81,12 +82,12 @@ class ExpensePresenter:
         self.view.show()
         self.update_expense_data()
         self.update_budget_data()
-        cat_data = [[cat.name, cat.parent, cat.pk] for cat in self.cat_repo.get_all()]
+        cat_data = [[cat.name, cat.parent, cat.pk] for cat in self.repos[0].get_all()]
         self.view.set_category_dropdown(cat_data)
 
     def handle_expense_add_button_clicked(self) -> None:
         """add expense and update expense on expense_table"""
         amount, category, comment = self.view.get_am_cat_com()
         exp = Expense(amount=float(amount), category=category, comment=comment)
-        self.exp_repo.add(exp)
+        self.repos[1].add(exp)
         self.update_expense_data()
