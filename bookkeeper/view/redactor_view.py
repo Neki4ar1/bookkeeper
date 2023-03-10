@@ -3,12 +3,6 @@ from random import randint
 
 from PySide6.QtWidgets import (
     QApplication,
-    QLabel,
-    QLineEdit,
-    QMainWindow,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
     QVBoxLayout,
     QLabel,
     QWidget,
@@ -16,7 +10,6 @@ from PySide6.QtWidgets import (
     QComboBox,
     QLineEdit,
     QPushButton,
-    QMainWindow
 )
 
 
@@ -59,7 +52,6 @@ class RedactorWindow(QWidget):
         bottom_controls.addWidget(set_budget, 2, 1)
 
         set_budget_button = QPushButton('set')
-        # edit_button.clicked.connect(self.show_redactor())
         bottom_controls.addWidget(set_budget_button, 2, 2)
 
         bottom_widget = QWidget()

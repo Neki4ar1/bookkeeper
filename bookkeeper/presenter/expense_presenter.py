@@ -26,7 +26,7 @@ class ExpensePresenter:
         # self.cat_repo = repo[0]
         # self.exp_repo = repo[1]
         # self.bud_repo = repo[2]
-        self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
+        # self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
         self.view.on_redactor_add_button_clicked(self.show_redactor)
 
@@ -47,6 +47,7 @@ class ExpensePresenter:
 
     def update_budget_data(self) -> None:
         """updates budget"""
+        bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         today = f"{datetime.datetime.utcnow():%d-%m-%Y %H:%M}"
         week_day = datetime.datetime.utcnow().weekday()
 
@@ -64,9 +65,9 @@ class ExpensePresenter:
                       for m in self.repos[1].get_like({"added_date": f"%{today[2:10]}%"})]
 
         data = [
-            ['День', f'{self.bud_data[0][0]}', sum(today_data)],
-            ['Неделя', f'{self.bud_data[1][0]}', sum(week_data)],
-            ['Месяц', f'{self.bud_data[2][0]}', sum(month_data)],
+            ['День', f'{bud_data[0][0]}', sum(today_data)],
+            ['Неделя', f'{bud_data[1][0]}', sum(week_data)],
+            ['Месяц', f'{bud_data[2][0]}', sum(month_data)],
         ]
         self.view.set_budget_table(data)
 
