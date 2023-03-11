@@ -7,6 +7,9 @@ from typing import Any
 
 from bookkeeper.models.expense import Expense
 from bookkeeper.models.category import Category
+from bookkeeper.models.budget import Budget
+
+BUDGET_LIST = {"day": 1, "week": 2, "month": 3}
 
 
 class ExpensePresenter:
@@ -22,17 +25,16 @@ class ExpensePresenter:
 
     def __init__(self, model: Any, view: Any, repo: list[Any]):
         self.model = model
-        self.view = view  # [mainWindow, RedactorWindow]
-        self.repos = repo
-        # self.cat_repo = repo[0]
-        # self.exp_repo = repo[1]
-        # self.bud_repo = repo[2]
+        self.view = view   # [mainWindow, RedactorWindow]
+        self.repos = repo  # [Category_repo, Expense_repo, Budget_repo]
         # self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
         self.view.on_redactor_add_button_clicked(self.show_redactor_clicked)
 
         red_w = self.view.get_redactor()
         red_w.on_add_category_clicked(self.add_category_button_clicked)
+        red_w.on_delete_category_clicked(self.delete_category_button_clicked)
+        red_w.on_add_budget_clicked(self.add_budget_button_clicked)
 
     def show(self) -> None:
         """showing all on main view"""
@@ -107,3 +109,27 @@ class ExpensePresenter:
         new_cat = Category(redactor_view.get_add_category())
         self.repos[0].add(new_cat)
         self.update_category_data()
+
+    def delete_category_button_clicked(self) -> None:
+        redactor_view = self.view.get_redactor()
+        cat_list = {cat.name: cat.pk for cat in self.repos[0].get_all()}
+        cat_delete = redactor_view.get_delete_category()
+        self.repos[0].delete(cat_list[cat_delete])
+        self.update_category_data()
+
+    def add_budget_button_clicked(self) -> None:
+        redactor_view = self.view.get_redactor()
+        new_bud = redactor_view.get_selected_bud()
+        bud_amount = redactor_view.get_add_budget()
+        self.repos[2].update(Budget(limit_on=bud_amount, spent=0, pk=BUDGET_LIST[new_bud]))
+        self.update_budget_data()
+        # print(BUDGET[new_bud])
+
+    # def get_category_pk(self, cat: list[Any]) -> int:
+    #     where = {"amount":     f"{cat[0]}",  # amount
+    #              "category":   f"{cat[1]}",  # category
+    #              "added_date": f"{cat[2]}",  # date
+    #              "comment":    f"{cat[3]}"   # comment
+    #              }
+    #     result = self.repos[1].get_like(where)
+    #     return int(result[0].pk)
