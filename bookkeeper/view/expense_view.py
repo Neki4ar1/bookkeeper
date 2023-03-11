@@ -148,6 +148,7 @@ class MainWindow(QMainWindow):
         self.expense_add_button.clicked.connect(slot)
 
     def on_redactor_add_button_clicked(self, slot: Any) -> None:
+        """open new window of redaction"""
         self.edit_button.clicked.connect(slot)
 
     def get_redactor(self):
