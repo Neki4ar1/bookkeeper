@@ -76,6 +76,9 @@ class MainWindow(QMainWindow):
     """
     def __init__(self) -> None:
         super().__init__()
+
+        self.item_model = None
+
         self.redactor_w = RedactorWindow()
 
         self.setWindowTitle("Программа для ведения бюджета")
@@ -115,6 +118,12 @@ class MainWindow(QMainWindow):
         self.expense_add_button = QPushButton('Добавить')
         self.bottom_controls.addWidget(self.expense_add_button, 3, 1)
 
+        self.expense_update_button = QPushButton('Обновить')
+        self.bottom_controls.addWidget(self.expense_update_button, 3, 0)
+
+        self.expense_delete_button = QPushButton('Удалить')
+        self.bottom_controls.addWidget(self.expense_delete_button, 3, 2)
+
         self.bottom_widget = QWidget()
         self.bottom_widget.setLayout(self.bottom_controls)
 
@@ -127,14 +136,15 @@ class MainWindow(QMainWindow):
 
     def set_expense_table(self, data: list[T]) -> None:
         """making expense table on main window"""
-        cat_model = TableModel(data[::-1], ['Дата', 'Сумма', 'Категория', 'Комментарий'])
-        self.expenses_grid.setModel(cat_model)
+        self.item_model = TableModel(data[::-1], ['Дата', 'Сумма', 'Категория', 'Комментарий'])
+        self.expenses_grid.setModel(self.item_model)
+        # self.expenses_grid.resizeColumnsToContents()
         self.expenses_grid.horizontalHeader().setStretchLastSection(True)
 
     def set_budget_table(self, data: list[T]) -> None:
         """making budget table on main window"""
-        bud_model = TableModel(data, ['', 'Бюджет', 'Потрачено'])
-        self.budget_grid.setModel(bud_model)
+        bud_data = TableModel(data, ['', 'Бюджет', 'Потрачено'])
+        self.budget_grid.setModel(bud_data)
         self.budget_grid.horizontalHeader().setStretchLastSection(True)
         self.budget_grid.verticalHeader().setStretchLastSection(True)
 
@@ -147,6 +157,14 @@ class MainWindow(QMainWindow):
         """connect to funtion slot after clicking button"""
         self.expense_add_button.clicked.connect(slot)
 
+    def on_expense_update_button_clicked(self, slot: Any) -> None:
+        """connect to funtion slot after clicking button"""
+        self.expense_update_button.clicked.connect(slot)
+
+    def on_expense_delete_button_clicked(self, slot):
+        """delete Expense when button delete clicked"""
+        self.expense_delete_button.clicked.connect(slot)
+
     def on_redactor_add_button_clicked(self, slot: Any) -> None:
         """open new window of redaction"""
         self.edit_button.clicked.connect(slot)
@@ -156,7 +174,7 @@ class MainWindow(QMainWindow):
 
     def get_amount(self) -> float:
         """return amount"""
-        return float(self.amount_line_edit.text())  # TODO: обработка исключений
+        return float(self.amount_line_edit.text())
 
     def get_selected_cat(self) -> Any:
         """return category"""
@@ -169,3 +187,18 @@ class MainWindow(QMainWindow):
     def get_am_cat_com(self) -> list[Any]:
         """return list[amount, category, comment]"""
         return [self.get_amount(), self.get_selected_cat(), self.get_comment()]
+
+    def __get_selected_row_indices(self) -> list[int]:
+        return list(set([qmi.row() for qmi in self.expenses_grid.selectionModel().selection().indexes()]))
+
+    def get_selected_expenses(self) -> list[str] | None:
+        idx = self.__get_selected_row_indices()
+        if not idx:
+            return None
+        return [" ".join(x for x in self.item_model._data[i]) for i in idx]
+
+    def get_selected_date(self) -> list[str] | None:
+        idx = self.__get_selected_row_indices()
+        if not idx:
+            return None
+        return [self.item_model._data[i][0] for i in idx]

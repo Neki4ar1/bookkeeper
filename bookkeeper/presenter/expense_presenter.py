@@ -26,9 +26,11 @@ class ExpensePresenter:
     def __init__(self, model: Any, view: Any, repo: list[Any]):
         self.model = model
         self.view = view   # [mainWindow, RedactorWindow]
-        self.repos = repo  # [Category_repo, Expense_repo, Budget_repo]
+        self.repos = repo  # [0: Category_repo, 1: Expense_repo, 2: Budget_repo]
         # self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
+        self.view.on_expense_update_button_clicked(self.handle_expense_update_button_clicked)
+        self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
         self.view.on_redactor_add_button_clicked(self.show_redactor_clicked)
 
         red_w = self.view.get_redactor()
@@ -97,6 +99,38 @@ class ExpensePresenter:
         self.repos[1].add(exp)
         self.update_expense_data()
 
+    def handle_expense_update_button_clicked(self) -> None:
+        selected = self.view.get_selected_expenses()
+        expense_pk_dict = self.pk_get_all_expense()
+        amount, category, comment = self.view.get_am_cat_com()
+        ad_date = self.view.get_selected_date()
+        # print(date)
+        if len(selected) == 1:
+            exp = Expense(amount=amount,
+                          added_date=ad_date[0],
+                          category=category,
+                          comment=comment,
+                          pk=expense_pk_dict[selected[0]])
+            self.repos[1].update(exp)
+        else:
+            raise AttributeError(f"can not update more than 1 object at one moment ")
+        self.update_expense_data()
+
+    def handle_expense_delete_button_clicked(self) -> None:
+        selected = self.view.get_selected_expenses()
+        expense_pk_dict = self.pk_get_all_expense()
+        if selected:
+            for cat in selected:
+                self.repos[1].delete(expense_pk_dict[cat])
+        self.update_expense_data()
+
+    def pk_get_all_expense(self) -> dict[str: int]:
+        result = {f"{c.added_date} "
+                  f"{c.amount} "
+                  f"{c.category} "
+                  f"{c.comment}": c.pk for c in self.repos[1].get_all()}
+        return result
+
     def show_redactor_clicked(self, checked) -> None:
         red_w = self.view.get_redactor()
         if red_w.isVisible():
@@ -123,13 +157,4 @@ class ExpensePresenter:
         bud_amount = redactor_view.get_add_budget()
         self.repos[2].update(Budget(limit_on=bud_amount, spent=0, pk=BUDGET_LIST[new_bud]))
         self.update_budget_data()
-        # print(BUDGET[new_bud])
 
-    # def get_category_pk(self, cat: list[Any]) -> int:
-    #     where = {"amount":     f"{cat[0]}",  # amount
-    #              "category":   f"{cat[1]}",  # category
-    #              "added_date": f"{cat[2]}",  # date
-    #              "comment":    f"{cat[3]}"   # comment
-    #              }
-    #     result = self.repos[1].get_like(where)
-    #     return int(result[0].pk)
