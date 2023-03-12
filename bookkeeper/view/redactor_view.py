@@ -6,7 +6,6 @@ module of redactor window
 from typing import Any
 
 from PySide6.QtWidgets import (
-    QApplication,
     QVBoxLayout,
     QLabel,
     QWidget,
@@ -23,7 +22,7 @@ class RedactorWindow(QWidget):
     it will appear as a free-floating window.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.setWindowTitle('Окно редактирования')
@@ -66,39 +65,30 @@ class RedactorWindow(QWidget):
         # self.widget = QWidget()
         self.setLayout(layout)
 
-    def on_add_category_clicked(self, slot) -> None:
+    def on_add_category_clicked(self, slot: Any) -> None:
+        """make connection to add new category by clicking button"""
         self.save_button.clicked.connect(slot)
 
-    def on_delete_category_clicked(self, slot) -> None:
+    def on_delete_category_clicked(self, slot: Any) -> None:
+        """make connection to delete category by clicking button"""
         self.delete_button.clicked.connect(slot)
 
-    def on_add_budget_clicked(self, slot) -> None:
+    def on_add_budget_clicked(self, slot: Any) -> None:
+        """make connection to set new budget on day/week/month by clicking button"""
         self.set_budget_button.clicked.connect(slot)
 
-    def get_add_category(self) -> str:
+    def get_add_category(self) -> Any:
         """return amount"""
         return self.category_line.text()
 
-    def get_delete_category(self) -> str:
+    def get_delete_category(self) -> Any:
         """delete budget"""
         return self.category_delete.text()
 
-    def get_add_budget(self) -> str:
+    def get_add_budget(self) -> Any:
         """return budget"""
         return self.set_budget_line.text()
 
-    def get_selected_bud(self) -> str:
+    def get_selected_bud(self) -> Any:
         """return current budget in dropdown"""
         return self.budget_dropdown.currentText()
-
-    # def get_selected_cat(self) -> Any:
-    #     """return category"""
-    #     return self.category_dropdown.currentText()
-    #
-    # def get_comment(self) -> Any:
-    #     """return comment"""
-    #     return self.commentary_line_edit.text()
-    #
-    # def get_am_cat_com(self) -> list[Any]:
-    #     """return list[amount, category, comment]"""
-    #     return [self.get_amount(), self.get_selected_cat(), self.get_comment()]
