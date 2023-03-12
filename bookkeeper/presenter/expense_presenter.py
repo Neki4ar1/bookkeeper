@@ -9,7 +9,7 @@ from bookkeeper.models.expense import Expense
 from bookkeeper.models.category import Category
 from bookkeeper.models.budget import Budget
 
-BUDGET_LIST = {"day": 1, "week": 2, "month": 3}
+BUDGET_LIST = {"День": 1, "Неделя": 2, "Месяц": 3}
 
 
 class ExpensePresenter:

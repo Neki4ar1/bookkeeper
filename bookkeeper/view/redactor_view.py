@@ -26,36 +26,36 @@ class RedactorWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Redactor')
+        self.setWindowTitle('Окно редактирования')
         layout = QVBoxLayout()
 
         bottom_controls = QGridLayout()
 
-        bottom_controls.addWidget(QLabel("add category"), 0, 0)
+        bottom_controls.addWidget(QLabel("Добавить категорию"), 0, 0)
         self.category_line = QLineEdit()
         bottom_controls.addWidget(self.category_line, 0, 1)
 
-        self.save_button = QPushButton('save')
+        self.save_button = QPushButton('Добавить')
         # edit_button.clicked.connect(self.show_redactor())
         bottom_controls.addWidget(self.save_button, 0, 2)
 
-        bottom_controls.addWidget(QLabel("delete category"), 1, 0)
+        bottom_controls.addWidget(QLabel("Удалить категорию"), 1, 0)
         self.category_delete = QLineEdit()
         bottom_controls.addWidget(self.category_delete, 1, 1)
 
-        self.delete_button = QPushButton('delete')
+        self.delete_button = QPushButton('Удалить')
         # edit_button.clicked.connect(self.show_redactor())
         bottom_controls.addWidget(self.delete_button, 1, 2)
 
-        bottom_controls.addWidget(QLabel("Set Budget"), 2, 0)
+        bottom_controls.addWidget(QLabel("Поменять бюджет"), 2, 0)
 
         self.budget_dropdown = QComboBox()
-        self.budget_dropdown.addItems(['day', 'week', 'month'])
+        self.budget_dropdown.addItems(['День', 'Неделя', 'Месяц'])
         bottom_controls.addWidget(self.budget_dropdown, 3, 1)
         self.set_budget_line = QLineEdit()
         bottom_controls.addWidget(self.set_budget_line, 2, 1)
 
-        self.set_budget_button = QPushButton('set')
+        self.set_budget_button = QPushButton('Принять')
         bottom_controls.addWidget(self.set_budget_button, 2, 2)
 
         bottom_widget = QWidget()
