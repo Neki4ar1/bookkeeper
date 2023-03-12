@@ -29,8 +29,10 @@ class ExpensePresenter:
         self.repos = repo  # [0: Category_repo, 1: Expense_repo, 2: Budget_repo]
         # self.bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         self.view.on_expense_add_button_clicked(self.handle_expense_add_button_clicked)
-        self.view.on_expense_update_button_clicked(self.handle_expense_update_button_clicked)
-        self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
+        self.view.on_expense_update_button_clicked(
+            self.handle_expense_update_button_clicked)
+        self.view.on_expense_delete_button_clicked(
+            self.handle_expense_delete_button_clicked)
         self.view.on_redactor_add_button_clicked(self.show_redactor_clicked)
 
         red_w = self.view.get_redactor()
@@ -48,7 +50,7 @@ class ExpensePresenter:
         self.view.set_category_dropdown(cat_data)
 
     def update_expense_data(self) -> None:
-        """update information"""
+        """update information of expenses"""
         exp_data = [[tup.added_date,
                      tup.amount,
                      tup.category,
@@ -60,9 +62,14 @@ class ExpensePresenter:
         #     made = by_neki4ar
         #     week_sum =
         self.update_budget_data()
-        self.view.set_expense_table(exp_data)
+        if not exp_data:
+            solo_exp = [[0, 0, '', 'Пока что нет расходов']]
+            self.view.set_expense_table(solo_exp)
+        else:
+            self.view.set_expense_table(exp_data)
 
-    def update_category_data(self):
+    def update_category_data(self) -> None:
+        """update categories menu"""
         cat_data = [[cat.name, cat.parent, cat.pk] for cat in self.repos[0].get_all()]
         # return cat_data
         self.view.set_category_dropdown(cat_data)
@@ -100,6 +107,7 @@ class ExpensePresenter:
         self.update_expense_data()
 
     def handle_expense_update_button_clicked(self) -> None:
+        """updating choosed expense"""
         selected = self.view.get_selected_expenses()
         expense_pk_dict = self.pk_get_all_expense()
         amount, category, comment = self.view.get_am_cat_com()
@@ -113,38 +121,42 @@ class ExpensePresenter:
                           pk=expense_pk_dict[selected[0]])
             self.repos[1].update(exp)
         else:
-            raise AttributeError(f"can not update more than 1 object at one moment ")
+            raise AttributeError("can not update more than 1 object at one moment")
         self.update_expense_data()
 
     def handle_expense_delete_button_clicked(self) -> None:
+        """deleting choosed expenses"""
         selected = self.view.get_selected_expenses()
-        expense_pk_dict = self.pk_get_all_expense()
-        if selected:
-            for cat in selected:
-                self.repos[1].delete(expense_pk_dict[cat])
+        for exp in selected:
+            expense_pk_dict = self.pk_get_all_expense()
+            self.repos[1].delete(expense_pk_dict[exp])
         self.update_expense_data()
 
-    def pk_get_all_expense(self) -> dict[str: int]:
+    def pk_get_all_expense(self) -> dict[str, int]:
+        """returning pk of choosed expenses"""
         result = {f"{c.added_date} "
                   f"{c.amount} "
                   f"{c.category} "
                   f"{c.comment}": c.pk for c in self.repos[1].get_all()}
         return result
 
-    def show_redactor_clicked(self, checked) -> None:
+    def show_redactor_clicked(self, checked: Any) -> None:
+        """show redactor window"""
         red_w = self.view.get_redactor()
         if red_w.isVisible():
             red_w.hide()
         else:
             red_w.show()
 
-    def add_category_button_clicked(self, checked) -> None:
+    def add_category_button_clicked(self) -> None:
+        """add new caregory in category"""
         redactor_view = self.view.get_redactor()
         new_cat = Category(redactor_view.get_add_category())
         self.repos[0].add(new_cat)
         self.update_category_data()
 
     def delete_category_button_clicked(self) -> None:
+        """deleting category in category"""
         redactor_view = self.view.get_redactor()
         cat_list = {cat.name: cat.pk for cat in self.repos[0].get_all()}
         cat_delete = redactor_view.get_delete_category()
@@ -152,9 +164,10 @@ class ExpensePresenter:
         self.update_category_data()
 
     def add_budget_button_clicked(self) -> None:
+        """ adding new limit in budget"""
         redactor_view = self.view.get_redactor()
         new_bud = redactor_view.get_selected_bud()
         bud_amount = redactor_view.get_add_budget()
-        self.repos[2].update(Budget(limit_on=bud_amount, spent=0, pk=BUDGET_LIST[new_bud]))
+        bud = Budget(limit_on=bud_amount, spent=0, pk=BUDGET_LIST[new_bud])
+        self.repos[2].update(bud)
         self.update_budget_data()
-
