@@ -139,14 +139,26 @@ class MainWindow(QMainWindow):
         expense_header = ['Дата', 'Сумма', 'Категория', 'Комментарий']
         self.item_model = TableModel(data[::-1], expense_header)
         self.expenses_grid.setModel(self.item_model)
+        header = self.expenses_grid.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        # header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
         self.expenses_grid.horizontalHeader().setStretchLastSection(True)
 
     def set_budget_table(self, data: list[T]) -> None:
         """making budget table on main window"""
         bud_data = TableModel(data, ['', 'Бюджет', 'Потрачено'])
         self.budget_grid.setModel(bud_data)
-        self.budget_grid.horizontalHeader().setStretchLastSection(True)
-        self.budget_grid.verticalHeader().setStretchLastSection(True)
+        header = self.budget_grid.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        v_header = self.budget_grid.verticalHeader()
+        v_header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        v_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        v_header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        # self.budget_grid.horizontalHeader().setStretchLastSection(True)
+        # self.budget_grid.verticalHeader().setStretchLastSection(True)
 
     def set_category_dropdown(self, data: list[str]) -> None:
         """make dropdown of categories on main window"""
