@@ -142,6 +142,7 @@ class MainWindow(QMainWindow):
         header = self.expenses_grid.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         # header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
         self.expenses_grid.horizontalHeader().setStretchLastSection(True)
 
