@@ -64,8 +64,10 @@ def test_get_all():
     objects: list[Category] = [Category(f'al{i}', i*i) for i in range(5)]
     for o in objects:
         repo.add(o)
-    for o in objects:
-        obj_ass(o, repo.get(o.pk))
+
+    all = repo.get_all()
+    for o, o_all in zip(objects, all):
+        obj_ass(o, o_all)
     for o in objects:
         repo.delete(o.pk)
 
