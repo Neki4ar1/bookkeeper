@@ -136,9 +136,9 @@ class MainWindow(QMainWindow):
 
     def set_expense_table(self, data: list[T]) -> None:
         """making expense table on main window"""
-        self.item_model = TableModel(data[::-1], ['Дата', 'Сумма', 'Категория', 'Комментарий'])
+        expense_header = ['Дата', 'Сумма', 'Категория', 'Комментарий']
+        self.item_model = TableModel(data[::-1], expense_header)
         self.expenses_grid.setModel(self.item_model)
-        # self.expenses_grid.resizeColumnsToContents()
         self.expenses_grid.horizontalHeader().setStretchLastSection(True)
 
     def set_budget_table(self, data: list[T]) -> None:
@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
         """connect to funtion slot after clicking button"""
         self.expense_update_button.clicked.connect(slot)
 
-    def on_expense_delete_button_clicked(self, slot):
+    def on_expense_delete_button_clicked(self, slot: Any) -> None:
         """delete Expense when button delete clicked"""
         self.expense_delete_button.clicked.connect(slot)
 
@@ -169,7 +169,8 @@ class MainWindow(QMainWindow):
         """open new window of redaction"""
         self.edit_button.clicked.connect(slot)
 
-    def get_redactor(self):
+    def get_redactor(self) -> Any:
+        """return RedactorWindow of Main window"""
         return self.redactor_w
 
     def get_amount(self) -> float:
@@ -189,16 +190,24 @@ class MainWindow(QMainWindow):
         return [self.get_amount(), self.get_selected_cat(), self.get_comment()]
 
     def __get_selected_row_indices(self) -> list[int]:
-        return list(set([qmi.row() for qmi in self.expenses_grid.selectionModel().selection().indexes()]))
+        """retrun list of ids of selected rows"""
+        indexes = self.expenses_grid.selectionModel().selection().indexes()
+        return list(set([qmi.row() for qmi in indexes]))
 
     def get_selected_expenses(self) -> list[str] | None:
+        """return list of expenses that selected"""
         idx = self.__get_selected_row_indices()
         if not idx:
+            return None
+        if self.item_model is None:
             return None
         return [" ".join(x for x in self.item_model._data[i]) for i in idx]
 
     def get_selected_date(self) -> list[str] | None:
+        """return date in selected row"""
         idx = self.__get_selected_row_indices()
         if not idx:
+            return None
+        if self.item_model is None:
             return None
         return [self.item_model._data[i][0] for i in idx]
