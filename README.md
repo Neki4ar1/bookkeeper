@@ -48,4 +48,5 @@ poetry run pylint bookkeeper
 poetry run flake8 bookkeeper
 ```
 Отдельно нужно установить PySide6.
+
 Программа запускается в main.py
