@@ -78,7 +78,7 @@ class ExpensePresenter:
         """updates budget"""
         bud_data = [[bud.limit_on, bud.spent] for bud in self.repos[2].get_all()]
         today = f"{datetime.datetime.utcnow():%d-%m-%Y %H:%M}"
-        week_day = datetime.datetime.utcnow().weekday()
+        week_day = datetime.datetime.utcnow().weekday()+1
 
         week_dates = [f"{datetime.datetime.utcnow()-datetime.timedelta(i):%d-%m-%Y %H:%M}"
                       for i in range(week_day)]

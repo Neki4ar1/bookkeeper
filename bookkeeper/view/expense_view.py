@@ -205,7 +205,7 @@ class MainWindow(QMainWindow):  # type: ignore
     def __get_selected_row_indices(self) -> list[int]:
         """retrun list of ids of selected rows"""
         indexes = self.expenses_grid.selectionModel().selection().indexes()
-        return list(set([qmi.row() for qmi in indexes]))
+        return [qmi.row() for qmi in set(indexes)]
 
     def get_selected_expenses(self) -> list[str] | None:
         """return list of expenses that selected"""
