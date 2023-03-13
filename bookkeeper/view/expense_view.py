@@ -1,4 +1,6 @@
 # -*- coding: utf8 -*-
+# pylint: disable=protected-access
+# pylint: disable=too-many-instance-attributes
 """
 Главный файл, отвечающий за внешний вид
 """
@@ -28,7 +30,7 @@ class TableModel(QtCore.QAbstractTableModel):  # type: ignore
     headerData
     """
     def __init__(self, data: list[Any], columns: list[str]):
-        super(TableModel, self).__init__()
+        super().__init__()
         self._data = data
         self.columns = columns
 
