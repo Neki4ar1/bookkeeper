@@ -4,7 +4,7 @@
 """
 from typing import Any
 
-from PySide6.QtWidgets import (
+from PySide6.QtWidgets import (  # type: ignore
     QVBoxLayout,
     QLabel,
     QWidget,
@@ -14,12 +14,12 @@ from PySide6.QtWidgets import (
     QPushButton,
     QMainWindow
 )
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets  # type: ignore
 from bookkeeper.repository.abstract_repository import T
 from bookkeeper.view.redactor_view import RedactorWindow
 
 
-class TableModel(QtCore.QAbstractTableModel):
+class TableModel(QtCore.QAbstractTableModel):  # type: ignore
     """
     class that making tables to view
     data
@@ -61,7 +61,7 @@ class TableModel(QtCore.QAbstractTableModel):
         return None
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow):  # type: ignore
     """
     MainWindow class of editing Main Window
     Methods:
@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
     def set_expense_table(self, data: list[T]) -> None:
         """making expense table on main window"""
         expense_header = ['Дата', 'Сумма', 'Категория', 'Комментарий']
-        self.item_model = TableModel(data[::-1], expense_header)
+        self.item_model = TableModel(data[::-1], expense_header)  # type: ignore
         self.expenses_grid.setModel(self.item_model)
         header = self.expenses_grid.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)

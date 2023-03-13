@@ -5,7 +5,8 @@ module of redactor window
 
 from typing import Any
 
-from PySide6.QtWidgets import (
+
+from PySide6.QtWidgets import (  # type: ignore
     QVBoxLayout,
     QLabel,
     QWidget,
@@ -16,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 
-class RedactorWindow(QWidget):
+class RedactorWindow(QWidget):  # type: ignore
     """
     This "window" is a QWidget. If it has no parent,
     it will appear as a free-floating window.

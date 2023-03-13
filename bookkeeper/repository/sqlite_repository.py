@@ -78,7 +78,7 @@ class SQliteRepository(AbstractRepository[T]):
             cur.execute(f"INSERT INTO "
                         f"{self.table_name} ({names}) "
                         f"VALUES({placeholders})", values)
-            obj.pk = cur.lastrowid
+            obj.pk = cur.lastrowid  # type: ignore
         con.close()
         return obj.pk
 
@@ -134,7 +134,7 @@ class SQliteRepository(AbstractRepository[T]):
                         f"{self.table_name} "
                         f"SET {names} "
                         f"WHERE rowid = {obj.pk}", values)
-            obj.pk = cur.lastrowid
+            obj.pk = cur.lastrowid  # type: ignore
         con.close()
 
     def delete(self, pk: int) -> None:

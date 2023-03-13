@@ -5,7 +5,7 @@
 """
 import sys
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication  # type: ignore
 from bookkeeper.view.expense_view import MainWindow
 from bookkeeper.presenter.expense_presenter import ExpensePresenter
 from bookkeeper.models.category import Category
